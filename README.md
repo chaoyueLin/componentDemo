@@ -25,6 +25,9 @@
 拦截器或是引申OKHttp的拦截链[https://github.com/chaoyueLin/okhttpDemo](https://github.com/chaoyueLin/okhttpDemo)
 
 #### WMRouter
-### 资源resource的避免重复
+### resource
+getIdentifier()可获取不同module的资源
+
+避免重复
 ### R.等静态资源的
 ### 提升效率工具，脚本

@@ -12,8 +12,9 @@
 ## 层次设计划分
 ## 代码设计
 ### 生命周期的分发
-#### Lifecycle
+Lifecycle
 ### 组件化通信
+消息总线可参考我实现的[https://github.com/chaoyueLin/cevnetbus](https://github.com/chaoyueLin/cevnetbus)
 ### 路由
 #### [Arouter](https://github.com/alibaba/ARouter)
 * 路由原理![](./img/arouter.png)

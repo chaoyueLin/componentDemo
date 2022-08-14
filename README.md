@@ -105,13 +105,13 @@ Arouter整体代码设计都是一句这个思想
 		}
 
 
-	public class ARouter$$Providers$$module1 implements IProviderGroup {
-	  @Override
-	  public void loadInto(Map<String, RouteMeta> providers) {
-	    providers.put("com.example.module1.IUserService", RouteMeta.build(RouteType.PROVIDER, UserServiceImpl1.class, "/u/1", "u", null, -1, -2147483648));
-	    providers.put("com.example.module1.IUserService", RouteMeta.build(RouteType.PROVIDER, UserServiceImpl2.class, "/u/2", "u", null, -1, -2147483648));
-	  }
-	}
+		public class ARouter$$Providers$$module1 implements IProviderGroup {
+		  @Override
+		  public void loadInto(Map<String, RouteMeta> providers) {
+		    providers.put("com.example.module1.IUserService", RouteMeta.build(RouteType.PROVIDER, UserServiceImpl1.class, "/u/1", "u", null, -1, -2147483648));
+		    providers.put("com.example.module1.IUserService", RouteMeta.build(RouteType.PROVIDER, UserServiceImpl2.class, "/u/2", "u", null, -1, -2147483648));
+		  }
+		}
 
 
 * 拦截,也是继承Iproider。一次性全部加载，每次调用navigation其实都会调用拦截器，看是否调用拦截

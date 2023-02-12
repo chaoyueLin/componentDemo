@@ -21,6 +21,20 @@ Arouter整体代码设计都是一句这个思想
 #### [Arouter](https://github.com/alibaba/ARouter)
 ![](./img/arouter.png)
 
+* 路由生成：编译时
+    收集路由信息  ->  对路由信息分组 
+    每个路由分组生成一个路由表文件
+    生成路由入口文件；
+
+* 路由跳转：运行时
+    [依据分组名]查找路由入口：在路由入口文件查找对应的路由表文件是哪个；
+    加载路由表文件；
+    根据路由path信息，在路由表文件中查找具体的路由信息；
+    拿到足够的信息，进行路由跳转。  
+
+
+#### Warehouse
+包含了所有的路由信息（路由跳转，服务类，拦截器）。可以通过Warehouse拿到不同类型的路由信息。
 
 		class Warehouse {
 		    // Cache route and metas
@@ -72,8 +86,11 @@ Arouter整体代码设计都是一句这个思想
 		  }
 		}
 
+#### SPI
 
-* Provider，默认实现一些依赖注入的服务，也是通过路由找到类，反射构造实例
+全称Service Provider Interfaces，服务提供接口。是Java提供的一套供第三方实现或扩展使用的技术体系。主要通过解耦服务具体实现以及服务使用，使得程序的可扩展性大大增强，甚至可插拔。在ARouter中Iprovider是个简单的接口，只有init（），但是配合路由就可以查找到扩展接口的实现类，解耦了服务的提供和使用
+
+Provider，默认实现一些依赖注入的服务，也是通过路由找到类，反射构造实例
 
 		switch (routeMeta.getType()) {
 			case PROVIDER:  // if the route is provider, should find its instance
@@ -114,7 +131,22 @@ Arouter整体代码设计都是一句这个思想
 		}
 
 
-* 拦截,也是继承Iproider。一次性全部加载，每次调用navigation其实都会调用拦截器，看是否调用拦截
+#### 拦截
+
+也是继承Iproider。一次性全部加载，每次调用navigation其实都会调用拦截器，看是否调用拦截
+
+InterceptorServiceImpl是ARouter中管理拦截器的服务类。说明一下所有的自定义拦截器都需要继承自IInterceptor，而IInterceptor的父类就是IProvider。可见拦截器不过是一种特殊的服务类而已。
+在_ARouter.navigation()中被调用。可见每次路由操作都会走到拦截器逻辑中（除了设置了走绿色通道的操作）。
+
+
+* 跟服务和路由不同，拦截器类是一次性加载完的，不会按需加载。
+* 由于可能涉及到很多拦截器的加载，所以拦截器的初始化实在线程池中完成的。
+* 首先迭代Warehouse.interceptorsIndex集合。
+* 初始化完成的拦截器都添加到Warehouse.interceptors集合中
+* 拦截器逻辑在LogisticsCenter.executor中执行。所以拦截器逻辑是在异步线程中执行的。
+* 通过CancelableCountDownLatch interceptorCounter = new CancelableCountDownLatch(Warehouse.interceptors.size());方法，增加了对拦截器操作的超时处理。
+* 通过调用await来设置等待超时时间。当超过postcard中设置的超时时间之后会主动唤起阻塞的线程，执行接下来的逻辑。
+
 
 	
 		public class ARouter$$Interceptors$$app implements IInterceptorGroup {
